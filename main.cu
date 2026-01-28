@@ -33,8 +33,7 @@ __global__ void histogram_kernel(const unsigned char* __restrict__ in, int* hist
     }
 }
 
-__global__ void lut_kernel(const unsigned char* __restrict__ in, unsigned char* __restrict__ out, 
-                                 const unsigned char* __restrict__ lut, int n) {
+__global__ void lut_kernel(const unsigned char* __restrict__ in, unsigned char* __restrict__ out, const unsigned char* __restrict__ lut, int n) {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     if (idx < n) {
         out[idx] = lut[in[idx]];
@@ -45,13 +44,11 @@ void histogram_cub(const unsigned char* d_in, int* d_hist, int pixels) {
     void* d_temp_storage = nullptr;
     size_t temp_storage_bytes = 0;
     
-    cub::DeviceHistogram::HistogramEven(d_temp_storage, temp_storage_bytes,
-        d_in, d_hist, 256 + 1, 0, 256, pixels);
+    cub::DeviceHistogram::HistogramEven(d_temp_storage, temp_storage_bytes, d_in, d_hist, 256 + 1, 0, 256, pixels);
     
     cudaMalloc(&d_temp_storage, temp_storage_bytes);
     
-    cub::DeviceHistogram::HistogramEven(d_temp_storage, temp_storage_bytes,
-        d_in, d_hist, 256 + 1, 0, 256, pixels);
+    cub::DeviceHistogram::HistogramEven(d_temp_storage, temp_storage_bytes, d_in, d_hist, 256 + 1, 0, 256, pixels);
     
     cudaFree(d_temp_storage);
 }
